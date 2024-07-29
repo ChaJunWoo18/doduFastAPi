@@ -25,7 +25,7 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-def authenticate_user(db: Session, email: str, password: str):
+def authenticate_user(db: Session, email: str, password: str): #로그인
     user = get_user_by_email(db, email)
     if user and verify_password(password, user.hashed_password):
         return user
@@ -100,3 +100,33 @@ def get_consume_hist_by_id(db: Session, hist_id: int, user_id: int):
     if db_hist is None:
         raise HTTPException(status_code=404, detail="Consume history not found")
     return db_hist
+
+def get_budget(db: Session, user_id: int):
+    db_budget = db.query(models.Budget).filter(models.Budget.user_id == user_id).first()
+    if db_budget is None:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    return db_budget
+
+def update_budget(db: Session, user_id: int, updated_budget: schemas.Budget):
+    db_budget = get_budget(db, user_id= user_id)
+    if db_budget is None:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    db_budget.budget_amount = updated_budget.budget_amount
+    db_budget.pre_budget = updated_budget.pre_budget
+    db.commit()
+    db.refresh(db_budget)
+    return db_budget
+
+def create_budget(db:Session, user_id: int):
+    db_budget= models.Budget(budget_amount = 0,
+                             pre_budget= 0,
+                             user_id= user_id)
+    db.add(db_budget)
+    db.commit()
+    db.refresh(db_budget)
+    return db_budget
+
+def decode_token(db:Session,token):
+    user = get_user_by_email(db,token)
+    return user

@@ -35,15 +35,31 @@ class UserBase(BaseModel):
     email: str
     username: str
 
-
 class UserCreate(UserBase):
     password: str
 
 
 class User(UserBase):
     id: int
-    #is_active: bool
-    consume_histories: list[ConsumeHist] = []
+    disabled: bool 
+    #consume_histories: list[ConsumeHist] = []
+
+    class Config:
+        from_attributes = True
+
+
+class BudgetBase(BaseModel):
+    budget_amount: int
+    pre_budget: int
+
+
+class BudgetCreate(BudgetBase):
+    pass
+
+
+class Budget(BudgetBase):
+    id: int
+    user_id: int
 
     class Config:
         from_attributes = True
