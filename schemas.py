@@ -30,19 +30,24 @@ class ConsumeHist(ConsumeHistBase):
     class Config:
         from_attributes = True 
 
-
-class UserBase(BaseModel):
-    email: str
-    username: str
-
-class UserCreate(UserBase):
-    password: str
-
-
-class User(UserBase):
+class ConsumeHistResponse(ConsumeHistBase):
     id: int
-    disabled: bool 
-    #consume_histories: list[ConsumeHist] = []
+    category_name: str
+
+    class Config:
+        from_attributes = True      
+
+
+class TotalConsumeBase(BaseModel):
+    month_total: int
+    day_total: int
+
+class TotalConsumeCreate(TotalConsumeBase):
+    pass
+
+class TotalConsume(TotalConsumeBase):
+    id: int
+    user_id: int
 
     class Config:
         from_attributes = True
@@ -51,7 +56,7 @@ class User(UserBase):
 class BudgetBase(BaseModel):
     budget_amount: int
     pre_budget: int
-
+    last_updated_date: date
 
 class BudgetCreate(BudgetBase):
     pass
@@ -60,6 +65,22 @@ class BudgetCreate(BudgetBase):
 class Budget(BudgetBase):
     id: int
     user_id: int
+
+    class Config:
+        from_attributes = True
+
+class UserBase(BaseModel):
+    email: str
+    nickname: str
+
+class UserCreate(UserBase):
+    password: str
+
+
+class User(UserBase):
+    id: int
+    disabled: bool
+    #total_consume: Optional[TotalConsume] = None
 
     class Config:
         from_attributes = True
