@@ -16,14 +16,22 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/", response_model=List[schemas.ConsumeHistResponse])
-async def read_consume_history(current_user: models.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+@router.get("", response_model=List[schemas.ConsumeHistResponse])
+def read_consume_history(startDate:str,
+                         endDate:str,
+                         current_user: models.User = Depends(get_current_active_user), 
+                         db: Session = Depends(get_db)):
+    
     user = crud.get_user(db, user_id=current_user.id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    consume_hist_list = await crud.get_consume_history(db, user_id=current_user.id,limit=100, offset=0)
+    consume_hist_list = crud.get_consume_history(db, 
+                                                 user_id=current_user.id,
+                                                 start_date=startDate, 
+                                                 end_date=endDate)
+    
     if not consume_hist_list:
-        raise HTTPException(status_code=404, detail="History not found")
+        raise HTTPException(status_code=400, detail="History not found")
 
     return [
         schemas.ConsumeHistResponse(
@@ -46,14 +54,14 @@ def create_consume_history(category_name:str, new_hist: schemas.ConsumeHistCreat
         raise HTTPException(status_code=404, detail="Category not found")
     return crud.create_consume_hist(db, category_id=category.id, user_id=user.id, hist=new_hist)
 
-@router.put("/{hist_id}", response_model=schemas.ConsumeHist)
-def update_consume_history(hist_id: int, updated_hist: schemas.ConsumeHistCreate, user_id: int, category_id: int, db: Session = Depends(get_db)):
-    return crud.update_consume_hist(db, hist_id=hist_id, updated_hist=updated_hist, user_id=user_id, category_id=category_id)
+# @router.put("/{hist_id}", response_model=schemas.ConsumeHist)
+# def update_consume_history(hist_id: int, updated_hist: schemas.ConsumeHistCreate, user_id: int, category_id: int, db: Session = Depends(get_db)):
+#     return crud.update_consume_hist(db, hist_id=hist_id, updated_hist=updated_hist, user_id=user_id, category_id=category_id)
 
 @router.delete("/{hist_id}")
-def delete_consume_history(hist_id: int, user_id: int, db: Session = Depends(get_db)):
-    return crud.delete_consume_hist(db, hist_id=hist_id, user_id=user_id)
+def delete_consume_history(hist_id: int, current_user: models.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return crud.delete_consume_hist(db, hist_id=hist_id, user_id=current_user.id)
 
-@router.get("/{hist_id}", response_model=schemas.ConsumeHist)
-def read_consume_history_by_id(hist_id: int, user_id: int, db: Session = Depends(get_db)):
-    return crud.get_consume_hist_by_id(db, hist_id=hist_id, user_id=user_id)
+# @router.get("/{hist_id}", response_model=schemas.ConsumeHist)
+# def read_consume_history_by_id(hist_id: int, current_user: models.User = Depends(get_current_active_user),  db: Session = Depends(get_db)):
+#     return crud.get_consume_hist_by_id(db, hist_id=hist_id, user_id=current_user.id)

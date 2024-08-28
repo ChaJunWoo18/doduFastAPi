@@ -2,17 +2,18 @@ from fastapi import FastAPI
 import models
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
-from routes import user, category, consume_hist, budget,total
+from routes import user, category, consume_hist, budget,total, mail
 from auth import login
 from scheduler import start_scheduler, stop_scheduler
 from contextlib import asynccontextmanager
+import uvicorn
+
 
 models.Base.metadata.create_all(bind=engine)
 
 
 origins = [
-    "http://localhost:8000",
-    "http://localhost:58857",
+    "http://localhost:44103",
 ]
 
 # Dependency
@@ -46,7 +47,11 @@ app.include_router(consume_hist.router, prefix="/consume.history", tags=["consum
 app.include_router(budget.router, prefix="/budgets", tags=["budget"])
 app.include_router(total.router, prefix="/total", tags=["total"])
 app.include_router(login.router, tags=["login"])
+app.include_router(mail.router, prefix="/mail", tags=["mail"])
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the API"}
+
+if __name__ == "__main__" :
+	uvicorn.run("main:app", reload=True)

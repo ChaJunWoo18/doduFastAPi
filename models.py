@@ -13,10 +13,10 @@ class User(Base):
     nickname = Column(String)
     disabled = Column(Boolean, default=False)
 
-    items = relationship("Category", back_populates="owner")
-    consume_histories = relationship("ConsumeHist", back_populates="user")
-    budget = relationship("Budget", uselist=False, back_populates="user")
-    total_consume = relationship("TotalConsume", uselist=False, back_populates="user")
+    items = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
+    consume_histories = relationship("ConsumeHist", back_populates="user", cascade="all, delete-orphan")
+    budget = relationship("Budget", uselist=False, back_populates="user", cascade="all, delete-orphan")
+    total_consume = relationship("TotalConsume", uselist=False, back_populates="user", cascade="all, delete-orphan")
 
 class Category(Base):
     __tablename__ = "categories"
